@@ -1,0 +1,28 @@
+Vagrant.configure("2") do |config| 
+  config.vm.define :web do |main1| 
+    main1.vm.box = "kors89/centos7"
+    main1.vm.hostname = "web" 
+    main1.vm.network :forwarded_port, guest: 80, host: 8002 
+    main1.vm.network :private_network, ip: "192.168.100.13" 
+    main1.vm.provider :virtualbox do |v| 
+     v.customize ["modifyvm", :id, "--usb", "on"]
+     v.customize ["modifyvm", :id, "--usbehci", "off"]
+     v.customize ["modifyvm", :id, "--cpuexecutioncap", "75", "--memory", "1024", "--cpus", "1", "--name", "web"]
+    end 
+   main1.vm.provision "shell", path: "script_web.sh"
+   main1.vm.provision "file", source: "index.php", destination: "/var/www/html/index.php"
+  end 
+ 
+config.vm.define :db do |main2| 
+    main2.vm.box = "kors89/centos7"
+    main2.vm.hostname = "db" 
+    main2.vm.network :forwarded_port, guest: 80, host: 8001 
+    main2.vm.network :private_network, ip: "192.168.100.14" 
+    main2.vm.provider :virtualbox do |v| 
+     v.customize ["modifyvm", :id, "--usb", "on"]
+     v.customize ["modifyvm", :id, "--usbehci", "off"]
+     v.customize ["modifyvm", :id, "--cpuexecutioncap", "75", "--memory", "1024", "--cpus", "1", "--name", "db"]
+    end 
+    main2.vm.provision "shell", path: "script_db.sh"
+  end 
+end 
